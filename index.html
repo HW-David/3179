@@ -1,11 +1,126 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="utf-8" />
+  <title>Australian Domestic Airlines — Cancellation Rate by Departure Airport</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+  <style>
+    html,body { margin:0; height:100%; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; }
+    #vis { width:100%; height:100vh; }
+  </style>
 </head>
 <body>
-    
+<div id="vis"></div>
+
+<script>
+const AIRPORT_POINTS = [
+  {port: "Sydney",    lat: -33.9399, lon: 151.1753, state: "NSW"},
+  {port: "Melbourne", lat: -37.6690, lon: 144.8410, state: "VIC"},
+  {port: "Brisbane",  lat: -27.3842, lon: 153.1175, state: "QLD"},
+  {port: "Adelaide",  lat: -34.9382, lon: 138.5376, state: "SA"},
+  {port: "Perth",     lat: -31.9403, lon: 115.9672, state: "WA"},
+  {port: "Hobart",    lat: -42.8361, lon: 147.5090, state: "TAS"},
+  {port: "Canberra",  lat: -35.3069, lon: 149.1950, state: "ACT"},
+  {port: "Darwin",    lat: -12.4081, lon: 130.8727, state: "NT"}
+];
+
+const spec = {
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "width": 980, "height": 600,
+  "title": {"text": "Australian Domestic Airlines — Cancellation Rate by Departure Airport", "anchor": "start"},
+  "projection": {"type": "mercator"},
+
+  "layer": [
+    /* Ocean background */
+    {"mark": {"type": "rect", "filled": true},
+     "encoding": {"x":{"value":0},"y":{"value":0},"x2":{"value":980},"y2":{"value":600},"color":{"value":"#eef4fb"}}},
+
+    /* Light graticule (subtle) */
+    {"data": {"url": "ne_110m.json", "format": {"type":"topojson", "feature":"ne_110m_graticules_30"}},
+     "mark": {"type": "geoshape", "stroke": "#e5e7eb", "strokeWidth": 0.5, "fill": null}},
+
+    /* Australia outline from your TopoJSON */
+    {
+      "data": {"url": "ne_110m.json", "format": {"type":"topojson", "feature":"ne_110m_admin_0_countries"}},
+      "transform": [
+        {"filter":"datum.properties.ISO_A3 == 'AUS' || datum.properties.ADM0_A3 == 'AUS' || datum.properties.SU_A3 == 'AUS'"}
+      ],
+      "mark": {"type":"geoshape","fill":"#f0f5f9","stroke":"#cbd5e1"}
+    },
+
+    /* Proportional symbols from DomesticAirlines.csv */
+    {
+      "data": {"url": "DomesticAirlines.csv", "format": {"type": "csv"}},
+      "transform": [
+        {"calculate":
+          "trim(indexof(datum.Departing_Port, ' (') > -1 ? slice(datum.Departing_Port, 0, indexof(datum.Departing_Port,' (')) : datum.Departing_Port)",
+         "as": "PortNorm"},
+        {"aggregate": [
+          {"op":"sum","field":"Cancellations","as":"cancel_sum"},
+          {"op":"sum","field":"Departures_On_Time","as":"dep_on"},
+          {"op":"sum","field":"Departures_Delayed","as":"dep_delay"}
+        ], "groupby": ["PortNorm"]},
+        {"calculate": "toNumber(datum.dep_on) + toNumber(datum.dep_delay) + toNumber(datum.cancel_sum)", "as": "dep_total"},
+        {"filter": "datum.dep_total > 0"},
+        {"calculate": "datum.cancel_sum / datum.dep_total * 100", "as": "cancel_rate"},
+        {"lookup": "PortNorm",
+         "from": {"data": {"values": AIRPORT_POINTS}, "key": "port", "fields": ["lat","lon","state"]}},
+        {"filter": "isValid(datum.lat) && isValid(datum.lon)"}
+      ],
+      "layer": [
+        /* Circles */
+        {"mark": {"type": "circle", "opacity": 0.85, "stroke": "#334155", "strokeWidth": 0.6},
+         "encoding": {
+           "longitude": {"field": "lon", "type": "quantitative"},
+           "latitude": {"field": "lat", "type": "quantitative"},
+           "size": {
+             "field": "dep_total",
+             "type": "quantitative",
+             "title": "Total Departures",
+             "scale": {"type": "sqrt", "range": [24, 140]},
+             "legend": {
+               "symbolSize": 900,      /* ← 图例圈更大 */
+               "labelFontSize": 12,
+               "titleFontSize": 13
+             }
+           },
+           "color": {"field": "cancel_rate", "type": "quantitative",
+                     "title": "Cancellation Rate (%)",
+                     "scale": {"scheme": "reds"},
+                     "legend": {"format": ".1f"}},
+           "tooltip": [
+             {"field": "PortNorm", "title": "Airport"},
+             {"field": "state", "title": "State"},
+             {"field": "dep_total", "title": "Total Departures", "format": ","},
+             {"field": "cancel_sum", "title": "Cancellations", "format": ","},
+             {"field": "cancel_rate", "title": "Cancel Rate (%)", "format": ".1f"}
+           ]
+         }},
+
+        /* Labels (only larger totals to reduce clutter) */
+        {"transform": [{"filter": "datum.dep_total >= 5000"}],
+         "mark": {"type": "text", "dy": -10, "fontSize": 11},
+         "encoding": {
+           "longitude": {"field": "lon", "type": "quantitative"},
+           "latitude": {"field": "lat", "type": "quantitative"},
+           "text": {"field": "PortNorm"},
+           "color": {"value": "#111827"}
+         }}
+      ]
+    }
+  ],
+
+  "config": {
+    "legend": {"orient": "bottom"},
+    "view": {"stroke": null},
+    "padding": {"left": 10, "right": 10, "top": 10, "bottom": 10}
+  }
+};
+
+vegaEmbed("#vis", spec, {actions:false});
+</script>
 </body>
 </html>
