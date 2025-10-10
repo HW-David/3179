@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Australian Domestic Air Travel (2004–2019) — Interactive Data Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+  <style>
+    :root{
+      --blue:#0072B2;      /* line */
+      --orange:#D55E00;    /* bars & peak */
+      --bg:#f7f8fa;
+      --panel:#ffffff;
+      --text:#222;
+      --muted:#666;
+      --card-shadow:0 1px 4px rgba(0,0,0,.08);
+    }
+    html,body{margin:0;padding:0}
+    body{
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      background:var(--bg); color:var(--text); line-height:1.5;
+    }
+    header{padding:24px 24px 8px}
+    h1{margin:0 0 6px; color:#0a63c7}
+    .caption{color:#555; font-size:.95rem; max-width:1200px}
+    .grid{display:grid; gap:18px; padding:18px 24px}
+    .row-one{grid-template-columns:1fr}            /* map row */
+    .row-two{grid-template-columns:1fr}            /* charts row (mobile) */
+    @media(min-width:1100px){ .row-two{grid-template-columns:1fr 1fr;} }
+    .card{
+      background:var(--panel); border-radius:12px; box-shadow:var(--card-shadow); padding:10px;
+    }
+    h2{margin:8px 10px; color:#0b4e86}
+    .note{color:var(--muted); font-size:.9rem; margin:6px 10px 10px; max-width:1000px}
+    .vis{margin:6px 10px 10px}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Australian Domestic Air Travel (2004–2019) — Interactive Data Dashboard</h1>
+    <div class="caption">
+      Data sources: <em>audomcitypairs-201912.csv</em> (monthly passenger traffic) and
+      <em>DomesticAirlines.csv</em> (departures and cancellations).
+      Time period: 2004–2019. This dashboard provides an integrated view of passenger traffic
+      trends and operational reliability across Australia’s major domestic airports.
+    </div>
+  </header>
+
+  <!-- Row 1: MAP -->
+  <section class="grid row-one">
+    <div class="card">
+      <h2>Map: Cancellation Rate by Departure Airport (2004–2019)</h2>
+      <div id="visMap" class="vis"></div>
+      <div class="note">
+        The map visualizes cancellation rates by departure airport. Bubble size encodes the total number
+        of actual departures (flights), while color represents the proportion of cancelled flights
+        over the period. Australia only.
+      </div>
+    </div>
+  </section>
+
+  <!-- Row 2: CHARTS -->
+  <section class="grid row-two">
+    <div class="card">
+      <h2>Chart 1: Monthly Passenger Traffic by Route (Filterable)</h2>
+      <div id="vis1" class="vis"></div>
+      <div class="note">
+        Explore monthly passenger traffic for a selected route. Use the origin/destination dropdowns and
+        the start-year slider to adjust the time window. The dashed rule and label mark the month with
+        peak passenger volume within the filtered range.
+      </div>
+    </div>
+    <div class="card">
+      <h2>Chart 2: Top-10 Routes by Year (Total Passengers)</h2>
+      <div id="vis2" class="vis"></div>
+      <div class="note">
+        View the ten busiest domestic routes for a chosen year. Bars are ranked by total passenger volume.
+        Use the year slider to examine year-to-year variation.
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const CITY_OPTIONS = [
+      "ADELAIDE","ALICE SPRINGS","BRISBANE","CAIRNS","CANBERRA","DARWIN",
+      "GOLD COAST","HOBART","MELBOURNE","PERTH","SYDNEY","TOWNSVILLE"
+    ];
+
+    /* ===================== Chart 1: LINE ===================== */
+    const spec1 = {
+      "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+      "width": 520, "height": 330,
+      "data": { "url": "audomcitypairs-201912.csv" },
+      "config": { "background": "white" },
+      "params": [
+        {"name":"originSel","value":"MELBOURNE","bind":{"input":"select","name":"Origin: ","options":CITY_OPTIONS}},
+        {"name":"destSel","value":"SYDNEY","bind":{"input":"select","name":"Destination: ","options":CITY_OPTIONS}},
+        {"name":"yearMin","value":2004,"bind":{"input":"range","name":"Start year: ","min":2004,"max":2019,"step":1}}
+      ],
+      "transform": [
+        {"filter":"datum.City1 == originSel && datum.City2 == destSel"},
+        {"filter":"datum.Year >= yearMin"},
+        {"calculate":"toDate(datum.Year + '-' + datum.Month_num + '-01')","as":"Date"},
+        {"calculate":"datum.City1 + '–' + datum.City2","as":"Route"}
+      ],
+      "layer":[
+        {
+          "mark":{"type":"line","point":true,"strokeWidth":2,"color":"#0072B2"},
+          "encoding":{
+            "x":{"field":"Date","type":"temporal","title":"Month"},
+            "y":{"field":"Passenger_Trips","type":"quantitative","title":"Passengers","axis":{"format":"~s"}},
+            "tooltip":[
+              {"field":"Route","title":"Route"},
+              {"field":"Year","title":"Year"},
+              {"field":"Passenger_Trips","title":"Passengers","format":","}
+            ]
+          }
+        },
+        {
+          "transform":[
+            {"joinaggregate":[{"op":"max","field":"Passenger_Trips","as":"MaxTrips"}]},
+            {"filter":"datum.Passenger_Trips == datum.MaxTrips"}
+          ],
+          "layer":[
+            {"mark":{"type":"rule","strokeDash":[6,4],"color":"#D55E00"},
+             "encoding":{"x":{"field":"Date","type":"temporal"}}},
+            {"mark":{"type":"text","dx":6,"dy":-6,"fontWeight":"bold","color":"#D55E00"},
+             "encoding":{"x":{"field":"Date","type":"temporal"},"y":{"field":"Passenger_Trips","type":"quantitative"},
+                         "text":{"field":"Passenger_Trips","type":"quantitative"}}}
+          ]
+        }
+      ]
+    };
+
+    /* ===================== Chart 2: BAR ===================== */
+    const spec2 = {
+      "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+      "width": 520, "height": 330,
+      "data": { "url": "audomcitypairs-201912.csv" },
+      "config": { "background": "white" },
+      "params": [
+        {"name":"yearPick","value":2019,"bind":{"input":"range","name":"Year: ","min":2004,"max":2019,"step":1}}
+      ],
+      "transform":[
+        {"filter":"datum.Year == yearPick"},
+        {"calculate":"datum.City1 + '–' + datum.City2","as":"Route"},
+        {"aggregate":[{"op":"sum","field":"Passenger_Trips","as":"Passengers"}],"groupby":["Route"]},
+        {"window":[{"op":"rank","as":"rank"}],"sort":[{"field":"Passengers","order":"descending"}]},
+        {"filter":"datum.rank <= 10"}
+      ],
+      "mark":{"type":"bar","color":"#D55E00"},
+      "encoding":{
+        "y":{"field":"Route","type":"nominal","title":"Route","sort":"-x"},
+        "x":{"field":"Passengers","type":"quantitative","title":"Passengers","axis":{"format":"~s"}},
+        "tooltip":[{"field":"Route"},{"field":"Passengers","format":","}]
+      }
+    };
+
+    /* ===================== MAP (clean, no grey context) ===================== */
+    const specMap = {
+      "$schema":"https://vega.github.io/schema/vega-lite/v5.json",
+      "width": 1150, "height": 560,
+      "title":{"text":"Australian Domestic Airlines (2004–2019) — Cancellation Rate by Departure Airport","anchor":"start"},
+      "projection":{"type":"mercator","center":[134,-27],"scale":900},
+      "layer":[
+        {"data":{"sphere":{}},"mark":{"type":"geoshape","fill":"#eef2f7","stroke":null}},
+        {"data":{"graticule":{"step":[20,20]}},"mark":{"type":"geoshape","stroke":"#e5e7eb","strokeWidth":0.3}},
+        {
+          "data":{"url":"ne_110m.json","format":{"type":"topojson","feature":"ne_110m_admin_0_countries"}},
+          "transform":[{"filter":"datum.properties.ISO_A3=='AUS'"}],
+          "mark":{"type":"geoshape","fill":"#f0f5f9","stroke":"#cbd5e1"}
+        },
+        {
+          "data":{"url":"DomesticAirlines.csv"},
+          "transform":[
+            {"filter":"toNumber(datum.Year) >= 2004 && toNumber(datum.Year) <= 2019"},
+            {"calculate":"indexof(datum.Departing_Port,' (')>-1 ? slice(datum.Departing_Port,0,indexof(datum.Departing_Port,' (')) : datum.Departing_Port","as":"PortNorm"},
+            {"aggregate":[
+              {"op":"sum","field":"Cancellations","as":"c"},
+              {"op":"sum","field":"Departures_On_Time","as":"on"},
+              {"op":"sum","field":"Departures_Delayed","as":"del"}
+            ],"groupby":["PortNorm"]},
+            {"calculate":"toNumber(datum.on)+toNumber(datum.del)","as":"dep"},
+            {"calculate":"datum.dep + toNumber(datum.c)","as":"sched"},
+            {"filter":"datum.dep>0 && datum.sched>0"},
+            {"calculate":"round((datum.c/datum.sched)*100*10)/10","as":"rate"},
+            {"lookup":"PortNorm","from":{"data":{"values":[
+              {"port":"Sydney","lat":-33.9399,"lon":151.1753},
+              {"port":"Melbourne","lat":-37.6690,"lon":144.8410},
+              {"port":"Brisbane","lat":-27.3842,"lon":153.1175},
+              {"port":"Adelaide","lat":-34.9382,"lon":138.5376},
+              {"port":"Perth","lat":-31.9403,"lon":115.9672},
+              {"port":"Hobart","lat":-42.8361,"lon":147.5090},
+              {"port":"Canberra","lat":-35.3069,"lon":149.1950},
+              {"port":"Darwin","lat":-12.4081,"lon":130.8727}
+            ]},"key":"port","fields":["lat","lon"]}},
+            {"filter":"isValid(datum.lat) && isValid(datum.lon)"}
+          ],
+          "layer":[
+            {
+              "mark":{"type":"circle","opacity":0.9,"stroke":"#334155","strokeWidth":0.6},
+              "encoding":{
+                "longitude":{"field":"lon"},"latitude":{"field":"lat"},
+                "size":{"field":"dep","scale":{"type":"sqrt","range":[8,280]},
+                        "title":"Actual Departures (flights)",
+                        "legend":{"format":"~s","values":[200000,600000,1000000,1400000],
+                                  "symbolType":"circle","symbolFillColor":"#94a3b8","symbolStrokeColor":"#334155",
+                                  "titleFontSize":13,"labelFontSize":12}},
+                "color":{"field":"rate","type":"quantitative","scale":{"scheme":"reds"},
+                         "title":"Cancellation Rate (%)",
+                         "legend":{"format":".1f","gradientLength":200,"gradientThickness":12}},
+                "tooltip":[
+                  {"field":"PortNorm","title":"Airport"},
+                  {"field":"dep","title":"Actual Departures","format":","},
+                  {"field":"c","title":"Cancellations","format":","},
+                  {"field":"rate","title":"Cancel Rate (%)","format":".1f"}
+                ]
+              }
+            },
+            {
+              "mark":{"type":"text","dx":8,"dy":0,"fontSize":11,"color":"#111827","align":"left","baseline":"middle"},
+              "encoding":{"longitude":{"field":"lon"},"latitude":{"field":"lat"},"text":{"field":"PortNorm"}}
+            }
+          ]
+        }
+      ],
+      "config":{"legend":{"orient":"bottom"},"view":{"stroke":null}}
+    };
+
+    /* -------- Render all -------- */
+    vegaEmbed("#visMap", specMap, {actions:false});
+    vegaEmbed("#vis1", spec1, {actions:false});
+    vegaEmbed("#vis2", spec2, {actions:false});
+  </script>
+</body>
+</html>

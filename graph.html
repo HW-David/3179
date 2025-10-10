@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>FIT3179 Week 10 — Australian Domestic Routes (Interactive)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+
+  <style>
+    :root{
+      --blue:#0072B2;        
+      --orange:#D55E00;      
+      --panel:#ffffff;
+      --bg:#f7f8fa;
+      --text:#222;
+      --muted:#666;
+    }
+    body{
+      font-family: system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      margin:24px; line-height:1.5; background:var(--bg); color:var(--text);
+    }
+    h1{ color:#0a63c7; margin:0 0 8px; }
+    h2{ margin:28px 0 8px; color:#0b4e86; }
+    .caption{ color:#555; font-size:.95rem; margin-bottom:16px; }
+    .note{ color:var(--muted); font-size:.9rem; margin-top:6px; }
+    .vis{ margin:18px 0; background:var(--panel); padding:10px; border-radius:12px;
+          box-shadow:0 1px 4px rgba(0,0,0,.08); }
+    .grid{ display:grid; grid-template-columns:1fr; gap:18px; }
+    @media(min-width:1100px){ .grid{ grid-template-columns:1fr 1fr; } }
+  </style>
+</head>
+
+<body>
+  <h1>Australian Domestic Routes — Interactive Visualisations</h1>
+  <p class="caption">
+    Data: <code>audomcitypairs-201912.csv</code> (Monthly passenger traffic, <b>2004–2019</b>).
+    Includes tooltips, annotation, and dropdown/slider filters.
+  </p>
+
+  <div class="grid">
+    <div>
+      <h2>Chart 1: Monthly passengers by route (filterable)</h2>
+      <div id="vis1" class="vis"></div>
+      <p class="note">
+        Select the origin and destination, drag the start-year slider.
+        The dashed rule and label mark the peak passenger month.
+      </p>
+    </div>
+
+    <div>
+      <h2>Chart 2: Top-10 routes by year (total passengers)</h2>
+      <div id="vis2" class="vis"></div>
+      <p class="note">
+        Drag the year slider to view the busiest routes. Bars are ranked by total passenger volume in that year.
+      </p>
+    </div>
+  </div>
+
+  <script>
+    // Dropdown options for major airports
+    const CITY_OPTIONS = [
+      "ADELAIDE","ALICE SPRINGS","BRISBANE","CAIRNS","CANBERRA","DARWIN",
+      "GOLD COAST","HOBART","MELBOURNE","PERTH","SYDNEY","TOWNSVILLE"
+    ];
+
+    // ===== Chart 1: Monthly trend by route (Blue line, Orange peak annotation) =====
+    const spec1 = {
+      "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+      "width": 520, "height": 320,
+      "data": { "url": "audomcitypairs-201912.csv" },
+      "config": { "background": "white" },
+      "params": [
+        { "name": "originSel", "value": "MELBOURNE",
+          "bind": {"input":"select","name":"Origin: ","options": CITY_OPTIONS} },
+        { "name": "destSel", "value": "SYDNEY",
+          "bind": {"input":"select","name":"Destination: ","options": CITY_OPTIONS} },
+        { "name": "yearMin", "value": 2004,
+          "bind": {"input":"range","name":"Start year: ","min":2004,"max":2019,"step":1} }
+      ],
+      "transform": [
+        {"filter": "datum.Year >= 2004 && datum.Year <= 2019"},
+        {"filter": "datum.City1 == originSel && datum.City2 == destSel"},
+        {"filter": "datum.Year >= yearMin"},
+        {"calculate": "toDate(datum.Year + '-' + datum.Month_num + '-01')", "as": "Date"},
+        {"calculate": "datum.City1 + '–' + datum.City2", "as": "Route"}
+      ],
+      "layer": [
+        {
+          "mark": {"type": "line", "point": true, "strokeWidth": 2, "color": "#0072B2"},
+          "encoding": {
+            "x": {"field": "Date", "type": "temporal", "title": "Month"},
+            "y": {"field": "Passenger_Trips", "type": "quantitative", "title": "Passengers",
+                  "axis":{"format":"~s"}},
+            "tooltip": [
+              {"field":"Route","title":"Route"},
+              {"field":"Year","type":"ordinal","title":"Year"},
+              {"field":"Month_num","type":"ordinal","title":"Month"},
+              {"field":"Passenger_Trips","type":"quantitative","title":"Passenger trips","format":","},
+              {"field":"Passenger_Load_Factor","type":"quantitative","title":"Load factor (%)"}
+            ]
+          }
+        },
+        {
+          "transform": [
+            {"joinaggregate":[{"op":"max","field":"Passenger_Trips","as":"MaxTrips"}]},
+            {"filter":"datum.Passenger_Trips == datum.MaxTrips"}
+          ],
+          "layer": [
+            {
+              "mark":{"type":"rule","strokeDash":[6,4],"color":"#D55E00"},
+              "encoding": {"x":{"field":"Date","type":"temporal"}}
+            },
+            {
+              "mark":{"type":"text","dx":6,"dy":-6,"fontWeight":"bold","color":"#D55E00"},
+              "encoding": {
+                "x":{"field":"Date","type":"temporal"},
+                "y":{"field":"Passenger_Trips","type":"quantitative"},
+                "text":{"field":"Passenger_Trips","type":"quantitative"},
+                "tooltip": [
+                  {"field":"Route","title":"Route"},
+                  {"field":"Passenger_Trips","type":"quantitative","title":"Peak passengers","format":","},
+                  {"field":"Year","title":"Year"},
+                  {"field":"Month_num","title":"Month"}
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    };
+
+    // ===== Chart 2: Top-10 routes per year (Orange bars) =====
+    const spec2 = {
+      "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+      "width": 520, "height": 320,
+      "data": { "url": "audomcitypairs-201912.csv" },
+      "config": { "background": "white" },
+      "params": [
+        {"name":"yearPick","value":2019,
+         "bind":{"input":"range","name":"Year: ","min":2004,"max":2019,"step":1}}
+      ],
+      "transform": [
+        {"filter":"datum.Year >= 2004 && datum.Year <= 2019"},
+        {"filter":"datum.Year == yearPick"},
+        {"calculate": "datum.City1 + '–' + datum.City2", "as":"Route"},
+        {"aggregate":[{"op":"sum","field":"Passenger_Trips","as":"Passengers"}], "groupby":["Route"]},
+        {"window":[{"op":"rank","as":"rank"}], "sort":[{"field":"Passengers","order":"descending"}]},
+        {"filter":"datum.rank <= 10"}
+      ],
+      "mark": {"type":"bar", "color":"#D55E00"},
+      "encoding": {
+        "y": {"field":"Route","type":"nominal","title":"Route","sort":"-x"},
+        "x": {"field":"Passengers","type":"quantitative","title":"Passengers","axis":{"format":"~s"}},
+        "tooltip":[
+          {"field":"Route","title":"Route"},
+          {"field":"Passengers","type":"quantitative","title":"Passengers","format":","},
+          {"field":"rank","type":"ordinal","title":"Rank"}
+        ]
+      }
+    };
+
+    vegaEmbed("#vis1", spec1, {actions:false});
+    vegaEmbed("#vis2", spec2, {actions:false});
+  </script>
+</body>
+</html>
