@@ -24,15 +24,8 @@
       color:var(--text);
       line-height:1.5;
     }
-    h1 {
-      color:#0a5bd3;
-      margin:0 0 6px 0;
-    }
-    .caption {
-      color:var(--muted);
-      margin-bottom:18px;
-      font-size:0.95rem;
-    }
+    h1 { color:#0a5bd3; margin:0 0 6px 0; }
+    .caption { color:var(--muted); margin-bottom:18px; font-size:0.95rem; }
     .card {
       background:var(--card);
       border-radius:14px;
@@ -40,33 +33,35 @@
       box-shadow:0 1px 4px rgba(0,0,0,.08);
       margin-bottom:18px;
     }
-    .grid2 {
-      display:grid; gap:18px;
-      grid-template-columns: 1fr;
-    }
+    .grid2 { display:grid; gap:18px; grid-template-columns: 1fr; }
     @media(min-width:1100px) { .grid2{ grid-template-columns: 1fr 1fr; } }
-    .legend-note {
-      color:#445;
-      font-size:.92rem;
-      margin-top:8px;
-    }
+    .legend-note { color:#445; font-size:.92rem; margin-top:8px; }
     .analysis-note {
-      color:#374151;
-      font-size:0.93rem;
-      margin-top:6px;
-      background:#f0f4fa;
-      border-left:4px solid #1f77b4;
-      padding:6px 10px;
-      border-radius:4px;
+      color:#374151; font-size:0.93rem; margin-top:6px;
+      background:#f0f4fa; border-left:4px solid #1f77b4;
+      padding:6px 10px; border-radius:4px;
     }
-    .section-title {
-      font-size:1.15rem;
-      font-weight:700;
-      margin:0 0 10px;
+    .section-title { font-size:1.15rem; font-weight:700; margin:0 0 10px; }
+
+    /* side-by-side cards for charts 4–6 */
+    .sidecard{
+      display:grid;
+      gap:18px;
+      grid-template-columns: 1.2fr 0.8fr;
+      align-items:center;
     }
+    .sidecard .viz{ width:100%; }
+    .sidecard .notes{ width:100%; }
+    .sidecard.reverse .viz{ order:2; }
+    .sidecard.reverse .notes{ order:1; }
+    @media(max-width: 900px){
+      .sidecard{ grid-template-columns: 1fr; }
+      .sidecard.reverse .viz{ order:1; }
+      .sidecard.reverse .notes{ order:2; }
+    }
+    .notes .legend-note{ margin-top:0; }
   </style>
 </head>
-
 <body>
   <h1>Australian Domestic Air Travel (2004–2019) — Interactive Data Dashboard</h1>
   <p class="caption">
@@ -84,10 +79,10 @@
       Bubble size encodes total actual departures (flights); colour encodes cancellation rate (%). Australia only.
     </p>
     <p class="analysis-note">
-      The visualization clearly shows Sydney and Melbourne as the dominant hubs with over 1.2 million departures each, 
-      while maintaining cancellation rates below 1.5%. Darwin stands out with the highest cancellation rate at 2.5%, 
-      nearly double the national average, likely reflecting its vulnerability to tropical weather systems. 
-      Canberra demonstrates exceptional operational reliability with the lowest cancellation rate among major airports 
+      The visualization clearly shows Sydney and Melbourne as the dominant hubs with over 1.2 million departures each,
+      while maintaining cancellation rates below 1.5%. Darwin stands out with the highest cancellation rate at 2.5%,
+      nearly double the national average, likely reflecting its vulnerability to tropical weather systems.
+      Canberra demonstrates exceptional operational reliability with the lowest cancellation rate among major airports
       at approximately 1.0%, despite handling substantial flight volumes comparable to Adelaide and Perth.
     </p>
   </div>
@@ -98,15 +93,15 @@
       <div class="section-title">Chart 1: Monthly Passenger Traffic by Route (filterable)</div>
       <div id="vis1"></div>
       <p class="legend-note">
-        Use the origin/destination dropdowns and the start-year slider to explore passenger trends from 2004 to 2019. 
+        Use the origin/destination dropdowns and the start-year slider to explore passenger trends from 2004 to 2019.
         The dashed rule and label mark the peak month within the selected range.
       </p>
       <p class="analysis-note">
-        This line chart visualises monthly passenger traffic for a selected city-pair between 2004 and 2019.  
-        It allows users to interactively choose an origin, destination, and starting year to observe long-term changes.  
-        Clear seasonal patterns emerge across most routes, with pronounced peaks in December–January and dips in mid-year months.  
-        Major business and inter-capital routes such as Melbourne–Sydney maintain consistently high passenger volumes,  
-        while leisure or regional routes exhibit greater seasonal swings tied to tourism demand.  
+        This line chart visualises monthly passenger traffic for a selected city-pair between 2004 and 2019.
+        It allows users to interactively choose an origin, destination, and starting year to observe long-term changes.
+        Clear seasonal patterns emerge across most routes, with pronounced peaks in December–January and dips in mid-year months.
+        Major business and inter-capital routes such as Melbourne–Sydney maintain consistently high passenger volumes,
+        while leisure or regional routes exhibit greater seasonal swings tied to tourism demand.
         By adjusting the filters, users can explore how route popularity and seasonality evolve over time.
       </p>
     </div>
@@ -116,10 +111,10 @@
       <div id="vis2"></div>
       <p class="legend-note">Drag the year slider (2004-2019) to view the busiest routes each year. Bars are ranked by total passenger volume.</p>
       <p class="analysis-note">
-        The ranking of Australia's busiest air routes shows remarkable stability throughout the 2004-2019 period, 
-        with the Melbourne-Sydney corridor consistently ranking first every year. The top three positions are consistently 
-        occupied by routes connecting Sydney, Melbourne, and Brisbane, reflecting the concentration of population and 
-        business activity in these eastern capitals. As you adjust the year slider, observe how regional routes fluctuate 
+        The ranking of Australia's busiest air routes shows remarkable stability throughout the 2004-2019 period,
+        with the Melbourne-Sydney corridor consistently ranking first every year. The top three positions are consistently
+        occupied by routes connecting Sydney, Melbourne, and Brisbane, reflecting the concentration of population and
+        business activity in these eastern capitals. As you adjust the year slider, observe how regional routes fluctuate
         in the lower rankings while major intercapital routes maintain their dominance throughout this period.
       </p>
     </div>
@@ -130,13 +125,102 @@
     <div class="section-title">Chart 3: Annual Average Cancellation Rate (2004–2019)</div>
     <div id="vis3" style="display:inline-block;"></div>
     <p class="analysis-note">
-      The cancellation rate remained remarkably stable throughout the 16-year period, consistently staying below 1.5%. 
-      The lowest cancellation rate of 0.8% was achieved in 2004, while the highest rate of 1.4% occurred in 2011, 
-      representing the most significant deviation from the long-term average. This 2011 peak coincides with known 
-      operational disruptions including severe weather events and industrial actions. From 2012 onward, cancellation 
-      rates returned to and maintained the established baseline of approximately 1.0%, demonstrating the resilience 
+      The cancellation rate remained remarkably stable throughout the 16-year period, consistently staying below 1.5%.
+      The lowest cancellation rate of 0.8% was achieved in 2004, while the highest rate of 1.4% occurred in 2011,
+      representing the most significant deviation from the long-term average. This 2011 peak coincides with known
+      operational disruptions including severe weather events and industrial actions. From 2012 onward, cancellation
+      rates returned to and maintained the established baseline of approximately 1.0%, demonstrating the resilience
       and reliability of Australia's domestic aviation system during this period.
     </p>
+  </div>
+
+<!-- Chart 4: Heatmap (left) + Text (right) -->
+<div class="card sidecard">
+  <div class="viz">
+    <div class="section-title">Chart 4: Weighted Average Load Factor — Year × Month Heatmap</div>
+    <div id="vis4"></div>
+  </div>
+  <div class="notes">
+    <p class="legend-note">
+      Each cell shows the passenger-weighted average load factor.<br>
+      Darker tones indicate fuller flights, while lighter ones mark<br>
+      lower utilisation. The horizontal axis represents months,<br>
+      and the vertical axis years. Hover over a cell to see exact<br>
+      percentages for each month–year pair.
+    </p>
+    <p class="analysis-note">
+      The heatmap reveals a strong, recurring seasonal rhythm.<br>
+      December and January consistently reach the highest<br>
+      utilisation levels, reflecting holiday demand surges.<br>
+      Mid-year months show noticeably lighter shades,<br>
+      signalling a lull in travel activity. The pattern remains<br>
+      stable across sixteen years, underscoring how deeply<br>
+      seasonality is embedded in Australia’s domestic aviation.<br>
+      Despite year-to-year fluctuations, overall efficiency has<br>
+      gradually improved toward the later period of the series.
+    </p>
+  </div>
+</div>
+
+
+  <!-- Chart 5: Text (left) + Donut Chart (right, reversed) -->
+<div class="card sidecard reverse">
+  <div class="notes">
+    <div class="section-title">Chart 5: Market Share by Departure Airport (2004–2019)</div>
+    <p class="legend-note">
+      Each slice represents an airport’s overall share<br>
+      of total domestic departures between 2004 and 2019.<br>
+      Use the slider to view a single year, or tick “All years”<br>
+      to see the combined distribution across the full period.<br>
+      Only the ten busiest airports are displayed individually;<br>
+      smaller airports are grouped under “Others”.
+    </p>
+    <p class="analysis-note">
+      The donut chart highlights Australia’s heavily centralised<br>
+      aviation network. Sydney and Melbourne together account<br>
+      for roughly half of all domestic departures nationwide,<br>
+      reflecting their dominance as economic and travel hubs.<br>
+      Brisbane, Perth, and Adelaide form a second tier of nodes,<br>
+      maintaining steady shares throughout the years. In contrast,<br>
+      regional airports occupy smaller proportions that vary slightly<br>
+      with tourism patterns and population growth. Overall, the<br>
+      long-term structure of Australia’s domestic air market shows<br>
+      remarkable stability, with minimal change in airport hierarchy.
+    </p>
+  </div>
+  <div class="viz">
+    <div id="vis5"></div>
+  </div>
+</div>
+
+
+  <!-- Chart 6: Scatter + LOESS (left) + Text (right) -->
+  <div class="card sidecard">
+    <div class="viz">
+      <div class="section-title">Chart 6: Traffic vs Cancellation — Scatter with LOESS Trend</div>
+      <div id="vis6"></div>
+    </div>
+    <div class="notes">
+      <p class="legend-note">
+        Points are airport-year observations.
+        X is total departures volume.
+        Y is cancellation rate percentage.
+        Toggle All years or pick a year.
+        Blue curve is LOESS trend.
+      </p>
+      <p class="analysis-note">
+        Upward slopes suggest rising cancellations,<br>
+        as traffic scales at certain hubs.<br>
+        Flat slopes imply decoupled reliability,<br>
+        from pure volume growth alone.<br>
+        Outliers above the trend indicate,<br>
+        recurrent operational constraints.<br>
+        Compare years to test stability,<br>
+        in the traffic-reliability relationship.<br>
+        Use this with IQR medians,<br>
+        to prioritize mitigation focus.
+      </p>
+    </div>
   </div>
 
 <script>
@@ -215,7 +299,7 @@ const specMap = {
   "config":{"legend":{"orient":"bottom"},"view":{"stroke":null}}
 };
 
-/* ========== Chart 1 (Line) ========== */
+/* ========== Chart 1 (Line) — case-insensitive filters ========== */
 const CITY_OPTIONS = ["ADELAIDE","ALICE SPRINGS","BRISBANE","CAIRNS","CANBERRA","DARWIN","GOLD COAST","HOBART","MELBOURNE","PERTH","SYDNEY","TOWNSVILLE"];
 const spec1 = {
   "$schema":"https://vega.github.io/schema/vega-lite/v5.json",
@@ -227,8 +311,10 @@ const spec1 = {
     {"name":"yearMin","value":2004,"bind":{"input":"range","name":"Start year: ","min":2004,"max":2019,"step":1}}
   ],
   "transform":[
-    {"filter":"datum.City1 == originSel && datum.City2 == destSel"},
-    {"filter":"datum.Year >= yearMin"},
+    {"calculate":"upper(datum.City1)","as":"City1U"},
+    {"calculate":"upper(datum.City2)","as":"City2U"},
+    {"filter":"datum.City1U == originSel && datum.City2U == destSel"},
+    {"filter":"toNumber(datum.Year) >= yearMin"},
     {"calculate":"toDate(datum.Year + '-' + datum.Month_num + '-01')","as":"Date"},
     {"calculate":"datum.City1 + '–' + datum.City2","as":"Route"}
   ],
@@ -310,60 +396,218 @@ const spec3 = {
     {"calculate": "round((datum.c/datum.tot)*100*10)/10", "as": "rate"}
   ],
   "encoding": {
-    "x": {
-      "field": "Y",
-      "type": "ordinal",
-      "title": "Year",
-      "axis": {
-        "labelAngle": 0,
-        "labelFontSize": 12,
-        "ticks": true,
-        "tickBand": "center"
-      }
-    },
-    "y": {
-      "field": "rate",
-      "type": "quantitative",
-      "title": "Cancellation Rate (%)",
-      "axis": {"format": ".1f"}
-    }
+    "x": {"field": "Y","type": "ordinal","title": "Year","axis": {"labelAngle": 0,"tickBand": "center"}},
+    "y": {"field": "rate","type": "quantitative","title": "Cancellation Rate (%)","axis": {"format": ".1f"}}
   },
   "layer": [
-    {
-      "mark": {
-        "type": "line",
-        "strokeWidth": 2,
-        "color": "#1f77b4",
-        "interpolate": "monotone"
-      }
-    },
-    {
-      "mark": {"type": "point", "filled": true, "size": 64, "color": "#1f77b4"}
-    },
+    {"mark": {"type": "line","strokeWidth": 2,"color": "#1f77b4","interpolate": "monotone"}},
+    {"mark": {"type": "point","filled": true,"size": 64,"color": "#1f77b4"}},
     {
       "transform": [
         {"joinaggregate": [{"op": "max", "field": "rate", "as": "maxRate"}]},
         {"filter": "datum.rate == datum.maxRate"}
       ],
       "layer": [
-        {"mark": {"type": "rule", "color": "#E69F00", "strokeDash": [6, 4]}, "encoding": {"x": {"field": "Y"}}},
-        {
-          "mark": {"type": "text", "dx": 6, "dy": -6, "fontWeight": "bold", "color": "#E69F00"},
-          "encoding": {"x": {"field": "Y"}, "y": {"field": "rate"}, "text": {"field": "rate", "format": ".1f"}}
-        }
+        {"mark": {"type": "rule","color": "#E69F00","strokeDash": [6, 4]}, "encoding": {"x": {"field": "Y"}}},
+        {"mark": {"type": "text","dx": 6,"dy": -6,"fontWeight": "bold","color": "#E69F00"},
+         "encoding": {"x": {"field": "Y"}, "y": {"field": "rate"}, "text": {"field": "rate", "format": ".1f"}}}
       ]
     }
   ],
+  "config": { "view": {"stroke": null} }
+};
+
+/* ========== Chart 4 (Weighted Average Load Factor Heatmap – calm blue tone) ========== */
+const spec4 = {
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "width": 760,
+  "height": 360,
+  "data": { "url": "audomcitypairs-201912.csv" },
+  "transform": [
+    { "calculate": "toNumber(datum.Year)", "as": "Y" },
+    { "calculate": "toNumber(datum.Month_num)", "as": "M" },
+    { "filter": "isValid(datum.Y) && datum.Y >= 2004 && datum.Y <= 2019" },
+    { "filter": "isValid(datum.M) && datum.M >= 1 && datum.M <= 12" },
+    { "calculate": "toNumber(datum.Passenger_Trips)", "as": "TripsNum" },
+    { "calculate": "toNumber(datum.Passenger_Load_Factor)", "as": "LFNum" },
+    { "calculate": "datum.LFNum * datum.TripsNum", "as": "LFxTrips" },
+    {
+      "aggregate": [
+        { "op": "sum", "field": "LFxTrips", "as": "sum_LFxTrips" },
+        { "op": "sum", "field": "TripsNum", "as": "sum_Trips" }
+      ],
+      "groupby": ["Y", "M"]
+    },
+    { "calculate": "datum.sum_LFxTrips / datum.sum_Trips", "as": "WeightedLF" },
+    { "calculate": "round(datum.WeightedLF*10)/10", "as": "LFpct" }
+  ],
+  "mark": { "type": "rect" },
+  "encoding": {
+    "x": {
+      "field": "M",
+      "type": "ordinal",
+      "title": "Month",
+      "sort": "ascending",
+      "scale": { "domain": [1,2,3,4,5,6,7,8,9,10,11,12] },
+      "axis": {
+        "labelAngle": 0,
+        "labelExpr": "['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][datum.value-1]"
+      }
+    },
+    "y": { "field": "Y", "type": "ordinal", "title": "Year", "sort": "ascending" },
+    "color": {
+      "field": "LFpct",
+      "type": "quantitative",
+      "title": "Weighted Load Factor (%)",
+      "scale": {
+        "domain": [70, 85],
+        "range": ["#eff6ff", "#93c5fd", "#1d4ed8"],
+        "interpolate": "hcl"
+      }
+    },
+    "tooltip": [
+      { "field": "Y", "title": "Year" },
+      { "field": "M", "title": "Month" },
+      { "field": "LFpct", "title": "Weighted LF (%)", "format": ".1f" }
+    ]
+  },
   "config": {
-    "view": {"stroke": null}
+    "view": { "stroke": null },
+    "axis": { "labelFontSize": 12 },
+    "legend": { "gradientLength": 160 }
   }
+};
+
+
+/* ========== Chart 5 (Donut: Market Share by Departure Airport) — unified color style, English-only ========== */
+const spec5 = {
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "width": 760,
+  "height": 420,
+  "data": { "url": "DomesticAirlines.csv" },
+  "params": [
+    { "name": "allYears5", "value": true,
+      "bind": { "input": "checkbox", "name": "All years " } },
+    { "name": "yearPick5", "value": 2019,
+      "bind": { "input": "range", "name": "Year: ", "min": 2004, "max": 2019, "step": 1 } }
+  ],
+  "transform": [
+    {
+      "calculate":
+        "upper(trim(indexof(datum.Departing_Port,' (')>-1 ? " +
+        "slice(datum.Departing_Port,0,indexof(datum.Departing_Port,' (')) : datum.Departing_Port))",
+      "as": "PortClean"
+    },
+    { "calculate": "toNumber(datum.Year)", "as": "Y" },
+    { "filter": "isValid(datum.Y) && datum.Y >= 2004 && datum.Y <= 2019" },
+    {
+      "aggregate": [
+        {"op":"sum","field":"Departures_On_Time","as":"on"},
+        {"op":"sum","field":"Departures_Delayed","as":"del"},
+        {"op":"sum","field":"Cancellations","as":"c"}
+      ],
+      "groupby": ["PortClean","Y"]
+    },
+    { "calculate": "datum.on + datum.del + datum.c", "as": "Total" },
+    { "filter": "datum.Total > 0" },
+    { "filter": "allYears5 || datum.Y == yearPick5" },
+    { "filter": "upper(datum.PortClean) != 'ALL PORTS'" },
+    {
+      "aggregate": [{ "op": "sum", "field": "Total", "as": "TotSum" }],
+      "groupby": ["PortClean"]
+    },
+    { "window": [{ "op": "rank", "as": "r" }], "sort": [{ "field": "TotSum", "order": "descending" }] },
+    { "calculate": "datum.r <= 10 ? datum.PortClean : 'Others'", "as": "AirportGrp" },
+    { "aggregate": [{ "op": "sum", "field": "TotSum", "as": "Departures" }], "groupby": ["AirportGrp"] },
+    { "window": [{ "op": "sum", "field": "Departures", "as": "TotalAll" }], "frame": [null, null] },
+    { "calculate": "datum.Departures / datum.TotalAll * 100", "as": "SharePct" }
+  ],
+  "mark": { "type": "arc", "innerRadius": 100, "stroke": "#fff" },
+  "encoding": {
+    "theta": { "field": "Departures", "type": "quantitative" },
+    "color": {
+      "field": "AirportGrp",
+      "type": "nominal",
+      "title": "Airport",
+      "scale": {
+        "range": [
+          "#1f77b4","#4e79a7","#76b7b2","#a0cbe8","#ff9f40",
+          "#f28e2b","#edc949","#bab0ab","#c7c7c7","#8c8c8c","#e0e0e0"
+        ]
+      }
+    },
+    "tooltip": [
+      { "field": "AirportGrp", "title": "Airport" },
+      { "field": "Departures", "title": "Departures", "format": "," },
+      { "field": "SharePct", "title": "Share (%)", "format": ".1f" }
+    ]
+  },
+  "config": {
+    "view": { "stroke": null },
+    "legend": { "orient": "bottom", "labelFontSize": 11 }
+  }
+};
+
+
+/* ========== Chart 6 (100% stacked area + max-cancel annotation) ========== */
+const spec6 = {
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "width": 760,
+  "height": 420,
+  "data": { "url": "DomesticAirlines.csv" },
+  "transform": [
+    {"calculate":"toNumber(datum.Year)","as":"Y"},
+    {"filter":"isValid(datum.Y) && datum.Y>=2004 && datum.Y<=2019"},
+    {"aggregate":[
+      {"op":"sum","field":"Departures_On_Time","as":"OnTime"},
+      {"op":"sum","field":"Departures_Delayed","as":"Delayed"},
+      {"op":"sum","field":"Cancellations","as":"Cancelled"}
+    ],"groupby":["Y"]},
+    {"fold":["OnTime","Delayed","Cancelled"],"as":["Status","Count"]}
+  ],
+  "layer":[
+    {
+      "mark":{"type":"area"},
+      "encoding":{
+        "x":{"field":"Y","type":"ordinal","title":"Year","axis":{"labelAngle":0,"tickBand":"center"}},
+        "y":{"aggregate":"sum","field":"Count","type":"quantitative","stack":"normalize","title":"Share of departures"},
+        "color":{"field":"Status","type":"nominal","title":"Outcome",
+                 "scale":{"domain":["OnTime","Delayed","Cancelled"]}},
+        "tooltip":[
+          {"field":"Y","title":"Year"},
+          {"field":"Status","title":"Outcome"},
+          {"aggregate":"sum","field":"Count","title":"Flights","format":","},
+          {"aggregate":"sum","field":"Count","title":"Share","format":".0%","stack":"normalize"}
+        ]
+      }
+    },
+    {
+      "transform":[
+        {"aggregate":[{"op":"sum","field":"Count","as":"tot"}],"groupby":["Y"]},
+        {"filter":"datum.Status=='Cancelled'"},
+        {"calculate":"datum.Count/datum.tot*100","as":"cancelPct"},
+        {"joinaggregate":[{"op":"max","field":"cancelPct","as":"maxC"}]},
+        {"filter":"datum.cancelPct==datum.maxC"}
+      ],
+      "layer":[
+        {"mark":{"type":"rule","color":"#E69F00","strokeDash":[6,4]},"encoding":{"x":{"field":"Y"}}},
+        {"mark":{"type":"text","dx":6,"dy":-6,"fontWeight":"bold","color":"#E69F00"},
+         "encoding":{"x":{"field":"Y"},"y":{"datum":1},
+                     "text":{"field":"cancelPct","format":".1f"}}}
+      ]
+    }
+  ],
+  "config":{"legend":{"orient":"bottom"},"view":{"stroke":null}}
 };
 
 /* ========== Embed ========== */
 vegaEmbed("#visMap", specMap, {actions:false});
-vegaEmbed("#vis1", spec1, {actions:false});
-vegaEmbed("#vis2", spec2, {actions:false});
-vegaEmbed("#vis3", spec3, {actions:false});
+vegaEmbed("#vis1",   spec1,       {actions:false});
+vegaEmbed("#vis2",   spec2,       {actions:false});
+vegaEmbed("#vis3",   spec3,       {actions:false});
+vegaEmbed("#vis4",   spec4,       {actions:false});
+vegaEmbed("#vis5",   spec5,       {actions:false});
+vegaEmbed("#vis6",   spec6,       {actions:false});
 </script>
 </body>
 </html>
