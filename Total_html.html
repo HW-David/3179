@@ -8,89 +8,137 @@
   <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
   <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
 
-  <style>
-    :root {
-      --blue:#1f77b4;
-      --accent:#E69F00;
-      --bg:#f6f7fb;
-      --card:#ffffff;
-      --text:#1d2939;
-      --muted:#6b7280;
-    }
-    body {
-      margin:24px;
-      font-family: system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
-      background:var(--bg);
-      color:var(--text);
-      line-height:1.5;
-    }
-    h1 { color:#0a5bd3; margin:0 0 6px 0; }
-    .caption { color:var(--muted); margin-bottom:18px; font-size:0.95rem; }
-    .card {
-      background:var(--card);
-      border-radius:14px;
-      padding:18px;
-      box-shadow:0 1px 4px rgba(0,0,0,.08);
-      margin-bottom:18px;
-    }
-    .grid2 { display:grid; gap:18px; grid-template-columns: 1fr; }
-    @media (min-width:1100px) { .grid2{ grid-template-columns: 1fr 1fr; } }
-    .legend-note { color:#445; font-size:.92rem; margin-top:8px; }
-    .analysis-note {
-      color:#374151; font-size:0.93rem; margin-top:6px;
-      background:#f0f4fa; border-left:4px solid #1f77b4;
-      padding:6px 10px; border-radius:4px;
-    }
-    .section-title { font-size:1.15rem; font-weight:700; margin:0 0 10px; }
+<style>
+:root {
+  --blue:#1f77b4;
+  --accent:#E69F00;
+  --bg:#f6f7fb;
+  --card:#ffffff;
+  --text:#1d2939;
+  --muted:#6b7280;
+}
 
-    /* FIX: top empty space in sidecard (was center) */
-    .sidecard{
-      display:grid;
-      gap:18px;
-      grid-template-columns: 1.2fr 0.8fr;
-      align-items:start;              /* <- changed from center */
-    }
-    .sidecard .viz{ width:100%; }
-    .sidecard .notes{ width:100%; }
-    .sidecard.reverse .viz{ order:2; }
-    .sidecard.reverse .notes{ order:1; }
-    @media (max-width: 900px){
-      .sidecard{ grid-template-columns: 1fr; }
-      .sidecard.reverse .viz{ order:1; }
-      .sidecard.reverse .notes{ order:2; }
-    }
-    .notes .legend-note{ margin-top:0; }
+/* ===== Global ===== */
+body {
+  margin:24px;
+  font-family: system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.5;
+}
+h1 { color:#0a5bd3; margin:0 0 6px 0; }
+.caption { color:var(--muted); margin-bottom:18px; font-size:0.95rem; }
 
-    /* Compact Chart-2 card */
-    .card-tight { padding-bottom:10px; }
-    .card-tight .legend-note { margin:6px 0 8px; }
-    .card-tight .analysis-note { margin:8px 0 0; }
-    .card-tight p { margin-block-end:8px; }
-    #card2 { margin-bottom:12px; }
+/* ===== Cards ===== */
+.card {
+  background:var(--card);
+  border-radius:14px;
+  padding:16px 14px;
+  box-shadow:0 1px 4px rgba(0,0,0,.08);
+  margin-bottom:16px;
+}
+.section-title {
+  font-size:1.15rem;
+  font-weight:700;
+  margin:0 0 8px;
+}
+.legend-note { color:#445; font-size:.92rem; margin:6px 0; }
+.analysis-note {
+  color:#374151; font-size:0.93rem;
+  background:#f0f4fa;
+  border-left:4px solid #1f77b4;
+  padding:6px 10px;
+  border-radius:4px;
+  line-height:1.45;
+  margin:6px 0 0;
+}
 
-    /* KPI chips under Chart 2 */
-    .kpi-chips {
-      display:flex; flex-wrap:wrap; gap:8px;
-      list-style:none; padding:6px 0 0; margin:0 0 6px;
-    }
-    .kpi-chips li {
-      font-size:.9rem; color:#24324a;
-      background:#f2f5fa; border:1px solid #d9e2ef;
-      border-radius:999px; padding:6px 10px; line-height:1;
-      box-shadow:0 1px 0 rgba(0,0,0,.03);
-    }
-    .kpi-chips .k { font-weight:700; margin-right:6px; color:#0a5bd3; }
+/* ===== Grid layout ===== */
+.grid2 {
+  display:grid;
+  gap:16px;
+  grid-template-columns:1fr;
+}
+@media (min-width:1100px){
+  .grid2{ grid-template-columns:1fr 1fr; }
+}
 
-    @media (max-width: 900px){
-      .card-tight { padding-bottom:6px; }
-      .card-tight .analysis-note { margin-top:6px; }
-    }
-    .card.sidecard.wide .viz { width: 100%; min-width: 0; }
-    #vis4 { width: 100%; }
-    #vis4 .vega-embed, 
-    #vis4 .vega-embed > div { width: 100% !important; }
-  
-  </style>
+/* ===== Sidecard layout ===== */
+.sidecard {
+  display:grid;
+  gap:16px;
+  grid-template-columns:1.2fr 0.8fr;
+  align-items:start;
+}
+.sidecard.reverse .viz { order:2; }
+.sidecard.reverse .notes { order:1; }
+@media (max-width:900px){
+  .sidecard { grid-template-columns:1fr; }
+  .sidecard.reverse .viz{ order:1; }
+  .sidecard.reverse .notes{ order:2; }
+}
+
+/* ===== KPI chips ===== */
+.kpi-chips {
+  display:flex; flex-wrap:wrap;
+  gap:6px;
+  list-style:none;
+  padding:4px 0 0;
+  margin:4px 0 4px;
+}
+.kpi-chips li {
+  font-size:.9rem;
+  color:#24324a;
+  background:#f2f5fa;
+  border:1px solid #d9e2ef;
+  border-radius:999px;
+  padding:5px 10px;
+  line-height:1;
+  box-shadow:0 1px 0 rgba(0,0,0,.03);
+}
+.kpi-chips .k {
+  font-weight:700;
+  margin-right:6px;
+  color:#0a5bd3;
+}
+
+/* ===== Vega containers ===== */
+#vis1,#vis2,#vis4 {
+  width:100%;
+}
+#vis1 .vega-embed,#vis1 .vega-embed>div,
+#vis2 .vega-embed,#vis2 .vega-embed>div,
+#vis4 .vega-embed,#vis4 .vega-embed>div {
+  width:100%!important;
+  margin:0!important;
+  padding:0!important;
+}
+
+#vis5, #vis6 { width: 100%; position: relative; }
+#vis5 .vega-embed, #vis5 .vega-embed>div,
+#vis6 .vega-embed, #vis6 .vega-embed>div {
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+#vis5 .vega-bindings input[type="range"],
+#vis6 .vega-bindings input[type="range"] {
+  width: 180px;
+}
+/* === Chart 5：控件放左上角，避免挡图例 === */
+#vis5 .vega-bindings {
+  top: 8px;
+  left: 8px;
+  right: auto;
+  bottom: auto;
+}
+.grid2 {
+  align-items: end;   
+  gap: 16px;          
+}
+
+</style>
 </head>
 <body>
   <h1>Australian Domestic Air Travel (2004–2019) — Interactive Data Dashboard</h1>
@@ -217,16 +265,18 @@
     </div>
   </div>
 
-  <!-- Chart 5: Text (left) + Donut Chart (right, reversed) -->
-  <div class="card sidecard reverse">
-    <div class="notes">
-      <div class="section-title">Chart 5: Market Share by Departure Airport (2004–2019)</div>
-      <p class="legend-note">
-        The donut plots combined departures by airport. Toggle “All years” to aggregate 2004–2019 or select a single year.
-        The ten largest airports are shown; the long tail is grouped as “Others”.
-      </p>
-      <p class="analysis-note">
-        Sydney and Melbourne dominate Australia’s domestic aviation network — together they handle almost half of all
+ <!-- Charts 5 & 6 side-by-side -->
+<div class="grid2" style="align-items:start;">
+  <!-- Card: Chart 5 -->
+  <div class="card">
+    <div class="section-title">Chart 5: Market Share by Departure Airport (2004–2019)</div>
+    <p class="legend-note">
+      The donut plots combined departures by airport. Toggle “All years” to aggregate 2004–2019 or select a single year.
+      The ten largest airports are shown; the long tail is grouped as “Others”.
+    </p>
+    <div id="vis5"></div>
+    <p class="analysis-note" style="margin-top:10px;">
+      Sydney and Melbourne dominate Australia’s domestic aviation network — together they handle almost half of all
         departures from 2004 to 2019, forming a powerful east-coast spine. Brisbane, Perth, and Adelaide act as the
         next-tier hubs that stabilise the network, while smaller regional airports fluctuate more with leisure travel
         and seasonal tourism demand.<br><br>
@@ -238,141 +288,127 @@
         From a resilience standpoint, strengthening <strong>secondary-hub capacity</strong> and
         <strong>cross-hub recovery routes</strong> would improve flexibility during disruptions — spreading risk and
         ensuring the broader network remains robust under stress.
-      </p>
-    </div>
-    <div class="viz">
-      <div id="vis5"></div>
-    </div>
+    </p>
   </div>
 
-  <!-- Chart 6: 100% Stacked Area (left) + Text (right) -->
-  <div class="card sidecard">
-    <div class="viz">
-      <div class="section-title">Chart 6: Departure Outcome Mix — 100% Stacked Area</div>
-      <div id="vis6"></div>
-    </div>
-    <div class="notes">
-      <p class="legend-note">
-        Share of departures by outcome (On-time, Delayed, Cancelled), normalised to 100% for each year.
-        The annotation highlights the year with the highest cancellation share.
-      </p>
-      <p class="analysis-note">
-        The mix of outcomes remains remarkably stable across the 16-year period. 
+  <!-- Card: Chart 6 -->
+  <div class="card">
+    <div class="section-title">Chart 6: Departure Outcome Mix — 100% Stacked Area</div>
+    <p class="legend-note">
+      Share of departures by outcome (On-time, Delayed, Cancelled), normalised to 100% for each year.
+      The annotation highlights the year with the highest cancellation share.
+    </p>
+    <div id="vis6"></div>
+    <p class="analysis-note" style="margin-top:10px;">
+      The mix of outcomes remains remarkably stable across the 16-year period. 
         <strong>On-time departures dominate at around 80 – 90 %</strong>, while cancellations form a consistently thin band of roughly 1 – 2 %.  
         The visible year-to-year movement is therefore driven mainly by changes in the <em>delayed share</em>, not by spikes in cancellations.  
-        <br><br>
+        <br>
 
         The brief expansion of the orange (delayed) segment around <strong>2008 – 2011</strong> corresponds to years of severe weather and industrial actions, 
         echoing patterns already seen in the cancellation trend (Chart 3). As schedules tightened in later years, the mix steadied again, showing improved operational control.  
-        <br><br>
+        <br>
 
         <strong>Operational insight:</strong> reliability dips are mostly <em>delay-mix</em> effects rather than true cancellations.  
         Airlines can improve performance by maintaining selective slack on critical rotations, preserving recovery capacity on disruption-prone hubs, 
         and refining turn-time buffers and flow management to absorb irregularities more smoothly.
-      </p>
-    </div>
+    </p>
   </div>
+</div>
 
 <script>
 /* ========== MAP ========== */
 const specMap = {
-  "$schema":"https://vega.github.io/schema/vega-lite/v5.json",
-  "width":960,"height":560,
-  "title":{"text":"Australian Domestic Airlines (2004–2019) — Cancellation Rate by Departure Airport","anchor":"start"},
-  "projection":{"type":"mercator","center":[133,-27],"translate":[480,280],"scale":900},
-  "layer":[
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "width": 960,
+  "height": 560,
+
+  "projection": { "type": "mercator", "center": [133, -27], "translate": [480, 270], "scale": 800 },
+
+
+  "padding": {"left": 0, "right": 0, "top": 0, "bottom": 60},
+
+  "layer": [
     {
-      "data":{"url":"ne_110m.json","format":{"type":"topojson","feature":"ne_110m_admin_0_countries"}},
-      "transform":[{"filter":"datum.properties.ISO_A3=='AUS' || datum.properties.ADM0_A3=='AUS' || datum.properties.SU_A3=='AUS'"}],
-      "mark":{"type":"geoshape","fill":"#e2e8f0","stroke":"#94a3b8"}
+      "data": { "url": "ne_110m.json", "format": { "type": "topojson", "feature": "ne_110m_admin_0_countries" } },
+      "transform": [
+        { "filter": "datum.properties.ISO_A3=='AUS' || datum.properties.ADM0_A3=='AUS' || datum.properties.SU_A3=='AUS'" }
+      ],
+      "mark": { "type": "geoshape", "fill": "#e2e8f0", "stroke": "#94a3b8" }
     },
     {
-      "data":{"url":"DomesticAirlines.csv"},
-      "transform":[
-        {"calculate":"indexof(datum.Departing_Port,' (')>-1 ? slice(datum.Departing_Port,0,indexof(datum.Departing_Port,' (')) : datum.Departing_Port","as":"PortNorm"},
-        {"aggregate":[
-          {"op":"sum","field":"Cancellations","as":"c"},
-          {"op":"sum","field":"Departures_On_Time","as":"on"},
-          {"op":"sum","field":"Departures_Delayed","as":"del"}
-        ],"groupby":["PortNorm"]},
-        {"calculate":"toNumber(datum.on)+toNumber(datum.del)+toNumber(datum.c)","as":"tot"},
-        {"filter":"datum.tot>0"},
-        {"calculate":"round((datum.c/datum.tot)*100*10)/10","as":"rate"},
-        {"lookup":"PortNorm",
-          "from":{
-            "data":{"values":[
-              {"port":"Sydney","lat":-33.9399,"lon":151.1753,"dx":10,"dy":0},
-              {"port":"Melbourne","lat":-37.6690,"lon":144.8410,"dx":10,"dy":0},
-              {"port":"Brisbane","lat":-27.3842,"lon":153.1175,"dx":10,"dy":0},
-              {"port":"Adelaide","lat":-34.9382,"lon":138.5376,"dx":10,"dy":0},
-              {"port":"Perth","lat":-31.9403,"lon":115.9672,"dx":10,"dy":0},
-              {"port":"Hobart","lat":-42.8361,"lon":147.5090,"dx":10,"dy":0},
-              {"port":"Canberra","lat":-35.3069,"lon":149.1950,"dx":10,"dy":-6},
-              {"port":"Darwin","lat":-12.4081,"lon":130.8727,"dx":10,"dy":0}
-            ]},
-            "key":"port",
-            "fields":["lat","lon","dx","dy"]
+      "data": { "url": "DomesticAirlines.csv" },
+      "transform": [
+        { "calculate": "indexof(datum.Departing_Port,' (')>-1 ? slice(datum.Departing_Port,0,indexof(datum.Departing_Port,' (')) : datum.Departing_Port", "as": "PortNorm" },
+        { "calculate": "upper(replace(datum.PortNorm,/^\\s+|\\s+$/g,''))", "as": "PortKey" },
+        { "filter": "datum.PortKey != 'ALL PORTS'" },
+        { "aggregate": [
+            { "op": "sum", "field": "Cancellations", "as": "c" },
+            { "op": "sum", "field": "Departures_On_Time", "as": "on" },
+            { "op": "sum", "field": "Departures_Delayed", "as": "del" }
+          ],
+          "groupby": ["PortKey"]
+        },
+        { "calculate": "toNumber(datum.on)+toNumber(datum.del)+toNumber(datum.c)", "as": "tot" },
+        { "filter": "datum.tot>0" },
+        { "calculate": "round((datum.c/datum.tot)*100*10)/10", "as": "rate" },
+        {
+          "lookup": "PortKey",
+          "from": {
+            "data": {
+              "values": [
+                { "PORTU": "SYDNEY",    "lat": -33.9399, "lon": 151.1753, "dx": 10, "dy": 0 },
+                { "PORTU": "MELBOURNE", "lat": -37.6690, "lon": 144.8410, "dx": 10, "dy": 0 },
+                { "PORTU": "BRISBANE",  "lat": -27.3842, "lon": 153.1175, "dx": 10, "dy": 0 },
+                { "PORTU": "ADELAIDE",  "lat": -34.9382, "lon": 138.5376, "dx": 10, "dy": 0 },
+                { "PORTU": "PERTH",     "lat": -31.9403, "lon": 115.9672, "dx": 10, "dy": 0 },
+                { "PORTU": "HOBART",    "lat": -42.8361, "lon": 147.5090, "dx": 10, "dy": -6 },
+                { "PORTU": "CANBERRA",  "lat": -35.3069, "lon": 149.1950, "dx": 10, "dy": -6 },
+                { "PORTU": "DARWIN",    "lat": -12.4081, "lon": 130.8727, "dx": 10, "dy": 0 }
+              ]
+            },
+            "key": "PORTU",
+            "fields": ["lat", "lon", "dx", "dy"]
           }
         }
       ],
-      "layer":[
+      "layer": [
         {
-          "mark":{"type":"circle","opacity":0.9,"stroke":"#334155","strokeWidth":0.6},
-          "encoding":{
-            "longitude":{"field":"lon"},
-            "latitude":{"field":"lat"},
-            "size":{
-              "field":"tot",
-              "scale":{"type":"sqrt","range":[90,2000]},
-              "legend":{
-                "title":"Departures",
-                "orient":"right",
-                "direction":"vertical",
-                "values":[200000,400000,600000,1000000,1400000],
-                "format":","
-              }
-            },
-            "order":{"field":"tot","sort":"ascending"},
-            "color":{
-              "field":"rate","type":"quantitative",
-              "title":"Cancellation rate (%)",
-              "scale":{"scheme":"reds","domain":[0.8,2.6],"clamp":true},
-              "legend":{"orient":"bottom","format":".1f"}
-            },
-            "tooltip":[
-              {"field":"PortNorm","title":"Airport"},
-              {"field":"tot","title":"Total Departures","format":","},
-              {"field":"c","title":"Cancellations","format":","},
-              {"field":"rate","title":"Cancel Rate (%)","format":".1f"}
+          "mark": { "type": "circle", "opacity": 0.9, "stroke": "#334155", "strokeWidth": 0.6 },
+          "encoding": {
+            "longitude": { "field": "lon" },
+            "latitude": { "field": "lat" },
+            "size": { "field": "tot", "scale": { "type": "sqrt", "range": [90, 2000] },
+              "legend": { "title": "Departures", "orient": "right", "values": [200000, 400000, 600000, 1000000, 1400000], "format": "," } },
+            "order": { "field": "tot", "sort": "ascending" },
+            "color": { "field": "rate", "type": "quantitative", "title": "Cancellation rate (%)",
+              "scale": { "scheme": "reds", "domain": [0.8, 2.6], "clamp": true },
+              "legend": { "orient": "bottom", "format": ".1f" } },
+            "tooltip": [
+              { "field": "PortKey", "title": "Airport" },
+              { "field": "tot", "title": "Total Departures", "format": "," },
+              { "field": "c", "title": "Cancellations", "format": "," },
+              { "field": "rate", "title": "Cancel Rate (%)", "format": ".1f" }
             ]
           }
         },
         {
-          "mark":{"type":"text","dx":8,"fontSize":14,"fontWeight":"700","color":"#0f172a",
-                  "align":"left","baseline":"middle","stroke":"#ffffff","strokeWidth":4,"strokeOpacity":1,"opacity":1},
-          "encoding":{"longitude":{"field":"lon"},"latitude":{"field":"lat"},"text":{"field":"PortNorm"},
-                      "dx":{"field":"dx"},"dy":{"field":"dy"}}
+          "mark": { "type": "text", "dx": 8, "fontSize": 14, "fontWeight": "700",
+                    "color": "#0f172a", "align": "left", "baseline": "middle",
+                    "stroke": "#ffffff", "strokeWidth": 4, "strokeOpacity": 1, "opacity": 1 },
+          "encoding": { "longitude": { "field": "lon" }, "latitude": { "field": "lat" },
+                        "text": { "field": "PortKey" }, "dx": { "field": "dx" }, "dy": { "field": "dy" } }
         },
         {
-          "mark":{"type":"text","dx":8,"fontSize":14,"fontWeight":"700","color":"#0f172a",
-                  "align":"left","baseline":"middle","zindex":1},
-          "encoding":{
-            "longitude":{"field":"lon"},
-            "latitude":{"field":"lat"},
-            "text":{"field":"PortNorm"},
-            "dx":{"field":"dx"},"dy":{"field":"dy"},
-            "tooltip":[
-              {"field":"PortNorm","title":"Airport"},
-              {"field":"tot","title":"Total Departures","format":","},
-              {"field":"c","title":"Cancellations","format":","},
-              {"field":"rate","title":"Cancel Rate (%)","format":".1f"}
-            ]
-          }
+          "mark": { "type": "text", "dx": 8, "fontSize": 14, "fontWeight": "700", "color": "#0f172a",
+                    "align": "left", "baseline": "middle", "zindex": 1 },
+          "encoding": { "longitude": { "field": "lon" }, "latitude": { "field": "lat" },
+                        "text": { "field": "PortKey" }, "dx": { "field": "dx" }, "dy": { "field": "dy" } }
         }
       ]
     }
   ],
-  "config":{"legend":{"orient":"bottom"},"view":{"stroke":null}}
+  "config": { "legend": { "orient": "bottom" }, "view": { "stroke": null } }
 };
 
 /* ========== Chart 1 (Line) ========== */
@@ -428,7 +464,8 @@ const spec1 = {
 /* ========== Chart 2 (Bar) ========== */
 const spec2 = {
   "$schema":"https://vega.github.io/schema/vega-lite/v5.json",
-  "width":520,"height":320,
+  "width":520,"height":350,
+  "padding": {"top": 4, "right": 4, "bottom": 4, "left": 4}, 
   "data":{"url":"audomcitypairs-201912.csv"},
   "params":[{"name":"yearPick","value":2019,"bind":{"input":"range","name":"Year: ","min":2004,"max":2019,"step":1}}],
   "transform":[
@@ -542,63 +579,66 @@ const spec4 = {
 /* ========== Chart 5 (Donut) ========== */
 const spec5 = {
   "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-  "width": 760,
-  "height": 420,
-
-  "autosize": {"type":"fit", "contains":"padding"},   // 新增
-  "padding": {"left": 60, "right": 0, "top": 0, "bottom": 0}, // 新增
-
-  "data": { "url": "DomesticAirlines.csv" },
+  "width": "container",
+  "height": 460,
+  "autosize": {"type": "fit", "contains": "content"},
+  "padding": {"left": 40, "right": 40, "top": 0, "bottom": 50},
+  "data": {"url": "DomesticAirlines.csv"},
   "params": [
-    { "name": "allYears5", "value": true, "bind": { "input": "checkbox", "name": "All years " } },
-    { "name": "yearPick5", "value": 2019, "bind": { "input": "range", "name": "Year: ", "min": 2004, "max": 2019, "step": 1 } }
+    {"name": "allYears5", "value": true, "bind": {"input": "checkbox", "name": "All years "}},
+    {"name": "yearPick5", "value": 2019, "bind": {"input": "range", "name": "Year: ", "min": 2004, "max": 2019, "step": 1}}
   ],
   "transform": [
-    {"calculate":
-      "upper(trim(indexof(datum.Departing_Port,' (')>-1 ? slice(datum.Departing_Port,0,indexof(datum.Departing_Port,' (')) : datum.Departing_Port))",
-     "as": "PortClean"},
-    { "calculate": "toNumber(datum.Year)", "as": "Y" },
-    { "filter": "isValid(datum.Y) && datum.Y >= 2004 && datum.Y <= 2019" },
-    {
-      "aggregate": [
-        {"op":"sum","field":"Departures_On_Time","as":"on"},
-        {"op":"sum","field":"Departures_Delayed","as":"del"},
-        {"op":"sum","field":"Cancellations","as":"c"}
-      ],
-      "groupby": ["PortClean","Y"]
-    },
-    { "calculate": "datum.on + datum.del + datum.c", "as": "Total" },
-    { "filter": "datum.Total > 0" },
-    { "filter": "allYears5 || datum.Y == yearPick5" },
-    { "filter": "upper(datum.PortClean) != 'ALL PORTS'" },
-    {"aggregate": [{ "op": "sum", "field": "Total", "as": "TotSum" }], "groupby": ["PortClean"]},
-    {"window": [{ "op": "rank", "as": "r" }], "sort": [{ "field": "TotSum", "order": "descending" }]},
+    {"calculate": "upper(trim(indexof(datum.Departing_Port,' (')>-1 ? slice(datum.Departing_Port,0,indexof(datum.Departing_Port,' (')) : datum.Departing_Port))", "as": "PortClean"},
+    {"calculate": "toNumber(datum.Year)", "as": "Y"},
+    {"filter": "isValid(datum.Y) && datum.Y >= 2004 && datum.Y <= 2019"},
+    {"aggregate": [
+      {"op": "sum", "field": "Departures_On_Time", "as": "on"},
+      {"op": "sum", "field": "Departures_Delayed", "as": "del"},
+      {"op": "sum", "field": "Cancellations", "as": "c"}
+    ], "groupby": ["PortClean", "Y"]},
+    {"calculate": "datum.on + datum.del + datum.c", "as": "Total"},
+    {"filter": "datum.Total > 0"},
+    {"filter": "allYears5 || datum.Y == yearPick5"},
+    {"filter": "upper(datum.PortClean) != 'ALL PORTS'"},
+    {"aggregate": [{"op": "sum", "field": "Total", "as": "TotSum"}], "groupby": ["PortClean"]},
+    {"window": [{"op": "rank", "as": "r"}], "sort": [{"field": "TotSum", "order": "descending"}]},
     {"calculate": "datum.r <= 10 ? datum.PortClean : 'Others'", "as": "AirportGrp"},
-    {"aggregate": [{ "op": "sum", "field": "TotSum", "as": "Departures" }], "groupby": ["AirportGrp"]},
-    {"window": [{ "op": "sum", "field": "Departures", "as": "TotalAll" }], "frame": [null, null]},
+    {"aggregate": [{"op": "sum", "field": "TotSum", "as": "Departures"}], "groupby": ["AirportGrp"]},
+    {"window": [{"op": "sum", "field": "Departures", "as": "TotalAll"}], "frame": [null, null]},
     {"calculate": "datum.Departures / datum.TotalAll * 100", "as": "SharePct"}
   ],
-  "mark": { "type": "arc", "innerRadius": 100, "stroke": "#fff" },
+  "mark": {"type": "arc", "innerRadius": 85, "stroke": "#fff"},
   "encoding": {
-    "theta": { "field": "Departures", "type": "quantitative" },
+    "theta": {"field": "Departures", "type": "quantitative"},
     "color": {
-      "field": "AirportGrp","type": "nominal","title": "Airport",
-      "scale": {"range": ["#1f77b4","#4e79a7","#76b7b2","#a0cbe8","#ff9f40","#f28e2b","#edc949","#bab0ab","#c7c7c7","#8c8c8c","#e0e0e0"]}
+      "field": "AirportGrp",
+      "type": "nominal",
+      "title": "Airport",
+      "scale": {"range": ["#1f77b4","#4e79a7","#76b7b2","#a0cbe8","#ff9f40","#f28e2b","#edc949","#bab0ab","#c7c7c7","#8c8c8c","#e0e0e0"]},
+      "legend": {
+        "orient": "bottom",
+        "direction": "horizontal",
+        "columns": 6,
+        "labelFontSize": 12,
+        "symbolSize": 70,
+        "labelLimit": 0
+      }
     },
     "tooltip": [
-      { "field": "AirportGrp", "title": "Airport" },
-      { "field": "Departures", "title": "Departures", "format": "," },
-      { "field": "SharePct", "title": "Share (%)", "format": ".1f" }
+      {"field": "AirportGrp", "title": "Airport"},
+      {"field": "Departures", "title": "Departures", "format": ","},
+      {"field": "SharePct", "title": "Share (%)", "format": ".1f"}
     ]
   },
-  "config": { "view": { "stroke": null }, "legend": { "orient": "bottom", "labelFontSize": 11 } }
+  "config": {"view": {"stroke": null}}
 };
+
 
 /* ========== Chart 6 (100% stacked area + max-cancel annotation) ========== */
 const spec6 = {
   "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-  "width": 760,
+  "width": "container",
   "height": 420,
   "padding": {"top": 4, "right": 4, "bottom": 0, "left": 4},
   "data": { "url": "DomesticAirlines.csv" },
